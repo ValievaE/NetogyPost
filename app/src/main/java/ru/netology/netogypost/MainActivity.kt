@@ -2,8 +2,10 @@ package ru.netology.netogypost
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import androidx.activity.viewModels
 import ru.netology.netogypost.databinding.ActivityMainBinding
+import ru.netology.netogypost.viewmodel.PostViewModel
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -11,61 +13,30 @@ class MainActivity : AppCompatActivity() {
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val post = Post(
-            id = 1,
-            author = getString(R.string.title),
-            content = getString(R.string.text),
-            published = getString(R.string.date),
-            liked = false,
-            shared = false,
-            likesCount = 0,
-            sharesCount = 0
-        )
+        val viewModel: PostViewModel by viewModels()
+
         with(binding) {
-            textViewTitle.text = post.author
-            textViewDate.text = post.published
-            text.text = post.content
-            textViewLikes.text = post.likesCount.toString()
-            textViewShare.text = post.sharesCount.toString()
-
-            likes.setImageResource(
-                if (post.liked) R.drawable.ic_baseline_favorite_24
-                else R.drawable.ic_baseline_favorite_border_24
-            )
-            post.liked=!post.liked
-
-            likes.setOnClickListener {
-                Log.d("stuff", "likes")
-
-                if (post.liked) {
-                    post.likesCount++
-                    textViewLikes.text = Converter.convert(post.likesCount)
-                    likes.setImageResource(R.drawable.ic_baseline_favorite_24)
-                }
-
-                else {
-                    textViewLikes.text = post.likesCount--.toString()
-                    likes.setImageResource(R.drawable.ic_baseline_favorite_border_24)
-                }
+            likes?.setOnClickListener {
+                viewModel.like()
             }
-
-            share.setOnClickListener {
-                Log.d("stuff", "share")
-                post.sharesCount++
+            ivShare?.setOnClickListener {
+                viewModel.share()
+            }
+            viewModel.data.observe(this@MainActivity) { post ->
+                textViewTitle.text = post.author
+                textViewDate.text = post.published
+                text.text = post.content
+                textViewLikes.text = Converter.convert(post.likesCount)
                 textViewShare.text = Converter.convert(post.sharesCount)
-            }
-
-            root.setOnClickListener{
-                Log.d("stuff", "stuff")
-            }
-
-            imageViewNetology.setOnClickListener{
-                Log.d("stuff", "avatar")
+                likes.setImageResource(
+                        if (post.liked) R.drawable.ic_baseline_favorite_24
+                        else R.drawable.ic_baseline_favorite_border_24
+                )
             }
         }
-
     }
 }
+
 
 
 
